@@ -1,0 +1,10 @@
+# Add this to your .codex/config.toml (repo-local or ~/.codex/config.toml).
+# It registers the reviewer subagent and caps how many agents can run.
+
+[agents]
+max_threads = 6      # max concurrent subagents
+max_depth   = 1      # children can spawn, grandchildren cannot
+
+[agents.reviewer]
+description = "Reviews the final diff, read-only."
+config_file = "./agents/reviewer.toml"
