@@ -65,6 +65,5 @@ the diff drives the tests, the reviewer checks the lot - read-only, in its own c
 ## Best practice being taught
 
 - Chain of **3-4 stages**, not more - past that the handoffs blur and context fills.
-- `max_depth = 1` - the reviewer is a child, it cannot spawn its own children.
 - Subagents **read-only** unless a stage truly needs to write.
 - This is the hand-built version of what Session 3's named methods (BMAD, Spec Kit) do.
