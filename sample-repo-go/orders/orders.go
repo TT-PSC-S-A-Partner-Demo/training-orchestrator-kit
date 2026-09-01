@@ -1,10 +1,15 @@
-// Package orders - one of three services that each "normalize" input its own way.
-// Convention drift: this author assumed input is always meaningful, never blank.
+// Package orders - part of the consistent baseline (reject blank, trim the rest).
 package orders
 
-import "strings"
+import (
+	"errors"
+	"strings"
+)
 
-// Normalize trims the input. It never complains about a blank value.
 func Normalize(x string) (string, error) {
-	return strings.TrimSpace(x), nil // blank -> "" with no error
+	t := strings.TrimSpace(x)
+	if t == "" {
+		return "", errors.New("input must not be blank")
+	}
+	return t, nil
 }

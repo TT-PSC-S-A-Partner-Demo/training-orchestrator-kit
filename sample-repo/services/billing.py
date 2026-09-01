@@ -1,8 +1,12 @@
-"""billing service - a second take on the same 'normalize' step.
+"""billing service - same convention as orders, written in a different style.
 
-Convention drift: this author chose to swallow blanks silently.
+Consistent behaviour, different code: that is fine. The convention is the behaviour,
+not the exact lines.
 """
 
 
 def normalize(x):
-    return (x or "").strip()   # never raises; returns "" for None or blank
+    text = (x or "").strip()
+    if not text:
+        raise ValueError("input must not be blank")
+    return text

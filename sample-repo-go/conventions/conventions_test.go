@@ -1,17 +1,17 @@
-// Conventions the three services are supposed to share.
+// Convention every service must share: Normalize trims valid input and returns an
+// error on anything blank. orders, billing and shipping already agree.
 //
-// Same contract everywhere: Normalize trims valid input, and returns an error on
-// anything blank. Today orders and billing drift from the "reject blank" rule that
-// shipping follows. These tests make the drift visible.
-//
-// The root cause is not a bug in any one service - the rule was never written down,
-// so three authors each guessed. Fix it in the spec, then apply once.
+// invoices is the new service. It was scaffolded to the spec, which only asked to trim
+// - so it drifts: it never rejects a blank value, and these tests catch it. The root
+// cause is the spec, which never stated the rule the siblings already assume. Fix it
+// there (rewind to spec), then apply once.
 package conventions
 
 import (
 	"testing"
 
 	"driftdemo/billing"
+	"driftdemo/invoices"
 	"driftdemo/orders"
 	"driftdemo/shipping"
 )
@@ -22,6 +22,7 @@ var services = map[string]normalizer{
 	"orders":   orders.Normalize,
 	"billing":  billing.Normalize,
 	"shipping": shipping.Normalize,
+	"invoices": invoices.Normalize,
 }
 
 func TestValidInputIsTrimmed(t *testing.T) {

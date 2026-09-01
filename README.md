@@ -1,62 +1,58 @@
-# orchestrator-kit - your SDLC as a team of agents
+# orchestrator-kit - build an SDLC agent-team, and audit its guardrails
 
-One root agent drives four SDLC stages - **spec -> implement -> test -> review**. Two ways
-to run it:
+The Session 3 flagship: you **build** your own orchestrator - four SDLC stages
+(spec &rarr; implement &rarr; test &rarr; review) with a rewind to root cause and real guardrails -
+then run the `guardrail-audit` skill on your own work. Full build guide in `FLAGSHIP.md`.
 
-- **Session 2 (the chain):** the stages go forward once. See `PROMPTS.md`.
-- **Session 3 (the flagship):** the team **rewinds** - a defect is routed to the phase that
-  *caused* it, not the one that noticed it - on a repo with real convention drift, under
-  guardrails, gated by real tests. See `FLAGSHIP.md`.
+> **Not copy-paste.** This kit ships a **reference solution** (`skills/spec-change`,
+> `implement-to-spec`, `test-change`, `agents/`, `config-snippet.toml`). Build yours first;
+> open the reference only to get unstuck or to compare afterwards.
 
 ## Contents
 
 ```
-skills/spec-change/SKILL.md         # stage 1: request -> spec + acceptance criteria
-skills/implement-to-spec/SKILL.md   # stage 2: smallest diff to the spec
-skills/test-change/SKILL.md         # stage 3: one test per criterion, green
+guardrail-audit/  ->  skills/guardrail-audit/SKILL.md   # the checker you RUN on your build
+sample-repo/                        # Python target: 3 consistent services + spec.md (build a 4th)
+sample-repo-go/                     # Go target: the same, go test ./...
 
-agents/{tester,reviewer}.toml       # Codex subagents (.toml)
+# --- reference solution (one way to build it - do not copy to start) ---
+skills/spec-change  implement-to-spec  test-change       # the three stage skills
+agents/{tester,reviewer}.toml       # Codex subagents
 agents-claude/{tester,reviewer}.md  # Claude Code subagents (.claude/agents/)
 agents-devin/{tester,reviewer}.md   # Devin subagents (.devin/agents/)
-config-snippet.toml                 # the [agents] block for .codex/config.toml
+config-snippet.toml                 # the [agents] block
 
-sample-repo/                        # Python: 3 services whose normalize() drifted
-sample-repo-go/                     # Go: the same drift (go test ./...)
-
-PROMPTS.md                          # Session 2: the chain
-FLAGSHIP.md                         # Session 3: the rewind flagship, four stages
+FLAGSHIP.md                         # Session 3: build it yourself, four milestones
+COMPARE.md                          # Session 3 second half: same task on BMAD + your own agent
+PROMPTS.md                          # Session 2: the forward-only chain
 ```
 
-The tester + reviewer subagents are the same roles for all three tools - Codex uses `.toml`,
-Claude Code and Devin use `.md` with YAML frontmatter. Same target_phase routing rule.
+## The one thing you install up front
 
-## Setup
+The guardrail checker, so you can audit your workflow at the end:
 
 ```bash
-# --- Codex CLI ---
-mkdir -p ~/.codex/skills ~/.codex/agents
-cp -r skills/spec-change skills/implement-to-spec skills/test-change ~/.codex/skills/
-cp agents/*.toml ~/.codex/agents/           # -> ~/.codex/agents/{tester,reviewer}.toml
-# paste config-snippet.toml into ~/.codex/config.toml (config_file = ./agents/*.toml)
-
-# --- Claude Code ---
-mkdir -p ~/.claude/agents ~/.claude/skills
-cp agents-claude/*.md ~/.claude/agents/
-cp -r skills/* ~/.claude/skills/
-
-# --- Devin (relative to the repo root) ---
-mkdir -p .devin/agents .devin/skills
-cp agents-devin/*.md .devin/agents/
-cp -r skills/* .devin/skills/
+mkdir -p ~/.codex/skills && cp -r skills/guardrail-audit ~/.codex/skills/
+# Claude: cp -r skills/guardrail-audit ~/.claude/skills/   |   Devin: .devin/skills/
 ```
 
-## The drift repo (Session 3)
+Then run it on your build: *"audit the guardrails on my orchestrator - config.toml, the agent
+files, and my driving prompt."* It grades seven guardrails and gives the fix for each.
+
+## The target
 
 ```bash
-cd sample-repo    && python -m pytest -q && cd ..    # 4 failed, 5 passed = the drift
-cd sample-repo-go && go test ./...        && cd ..    # same drift in Go
+cd sample-repo    && python -m pytest -q     # 9 passed, 3 failed = invoices to build
+cd sample-repo-go && go test ./...           # Go variant
 ```
 
-`orders`, `billing`, `shipping` each handle blank input differently. The failures are one
-**analysis** gap (no agreed convention), not three bugs - which is why the flagship rewinds
-to spec instead of patching each service. Full walk-through in `FLAGSHIP.md`.
+`orders`, `billing`, `shipping` share one convention (reject blank input) that lives only in
+the code. The task is to build a fourth service, `invoices`, from `sample-repo/spec.md` - a
+spec that forgets to state that rule. A good workflow catches the gap and rewinds to the
+spec; a shallow one patches the code and lets the next service reopen it.
+
+## Reference solution
+
+`skills/` and `agents/` are one working way to build the pipeline (same roles for Codex
+`.toml`, Claude Code and Devin `.md`). Use them to compare after you have built your own -
+not before.

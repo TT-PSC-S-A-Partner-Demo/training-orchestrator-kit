@@ -1,13 +1,14 @@
-// Package billing - a second take on the same "normalize" step.
-// Convention drift: this author swallows an empty string silently.
+// Package billing - same convention as orders, different style.
 package billing
 
-import "strings"
+import (
+	"errors"
+	"strings"
+)
 
-// Normalize trims the input, quietly accepting blanks.
 func Normalize(x string) (string, error) {
-	if x == "" {
-		return "", nil // empty swallowed; whitespace still slips through below
+	if strings.TrimSpace(x) == "" {
+		return "", errors.New("input must not be blank")
 	}
 	return strings.TrimSpace(x), nil
 }

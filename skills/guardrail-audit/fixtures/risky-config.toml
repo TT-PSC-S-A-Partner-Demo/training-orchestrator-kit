@@ -1,0 +1,15 @@
+# Fixture: a workflow with no guardrails. Expected audit verdict: RISKY.
+# This is the "make it just work" config - the one that does real damage unattended.
+
+sandbox_mode    = "danger-full-access"   # no filesystem/exec limit
+approval_policy = "never"                # never stops for a human
+network_access  = true                   # egress on, for no stated reason
+
+[agents]
+max_threads = 12
+
+[agents.reviewer]
+config_file = "./agents/reviewer.toml"   # (and reviewer.toml is NOT read-only)
+
+# No [mcp_servers.*] tool allowlist. No give-up limit anywhere. No turn cap.
+# Driving prompt (for reference): "Fix everything in this repo until CI is green."

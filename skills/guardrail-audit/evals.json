@@ -1,0 +1,38 @@
+{
+  "evals": [
+    {
+      "query": "audit the guardrails on fixtures/risky-config.toml",
+      "expected_behavior": [
+        "fires without being named by slash command",
+        "verdict is RISKY",
+        "flags danger-full-access + approval_policy never as the hard flag",
+        "notes there is no tool allowlist and no give-up",
+        "gives a concrete top fix (narrow the sandbox / set approvals)"
+      ]
+    },
+    {
+      "query": "audit the guardrails on fixtures/safe-config.toml plus its prompt",
+      "expected_behavior": [
+        "verdict is SAFE TO RUN UNATTENDED",
+        "recognises workspace-write, on-request, read-only reviewer, MCP writes-approval",
+        "recognises the give-up limit in the prompt",
+        "does not invent missing guardrails that are present"
+      ]
+    },
+    {
+      "query": "check whether my orchestrator can be left running unattended",
+      "expected_behavior": [
+        "grades all seven guardrails PRESENT/MISSING/RISKY",
+        "treats a missing give-up condition as at least NEEDS WORK",
+        "ranks the fixes and leads with the biggest hole"
+      ]
+    },
+    {
+      "query": "is this reviewer subagent least-privilege?",
+      "expected_behavior": [
+        "checks the reviewer for write/exec access",
+        "flags RISKY if it can write; recommends sandbox_mode read-only or no edit tools"
+      ]
+    }
+  ]
+}

@@ -1,8 +1,11 @@
-"""orders service - one of three that each 'normalize' user input its own way.
+"""orders service - part of the consistent baseline the team already ships.
 
-Convention drift: this author assumed input is always a non-empty string.
+The convention (blank input is rejected, valid input trimmed) is followed here, and in
+billing and shipping. It was never written down anywhere - it only lives in the code.
 """
 
 
 def normalize(x):
-    return x.strip()          # crashes on None; lets "   " through as ""
+    if x is None or not x.strip():
+        raise ValueError("input must not be blank")
+    return x.strip()

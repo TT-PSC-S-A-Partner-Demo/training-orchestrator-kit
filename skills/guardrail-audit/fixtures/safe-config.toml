@@ -1,0 +1,21 @@
+# Fixture: a guarded workflow. Expected audit verdict: SAFE TO RUN UNATTENDED.
+
+sandbox_mode    = "workspace-write"      # writes stay inside the repo; network off by default
+approval_policy = "on-request"           # pauses before the riskier steps
+
+[agents]
+max_threads = 6
+
+[agents.tester]
+config_file = "./agents/tester.toml"
+
+[agents.reviewer]
+config_file = "./agents/reviewer.toml"   # reviewer.toml sets sandbox_mode = "read-only"
+
+[mcp_servers.jira]
+default_tools_approval_mode = "writes"   # reads flow, mutations need approval
+enabled_tools = ["list_issues", "get_issue"]
+
+# Driving prompt (for reference):
+#   "... stop after 4 rewinds (give up and report) or when the suite is green ..."
+# Give-up limit: PRESENT (4 rewinds). Cost bound: turn/rewind cap + tight sandbox + approvals.

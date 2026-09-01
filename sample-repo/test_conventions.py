@@ -1,33 +1,47 @@
-"""Conventions the three services are supposed to share.
+"""Convention every service must share: normalize() trims valid input and rejects
+anything blank. orders, billing and shipping already pass. The flagship task is to
+BUILD a fourth service - invoices - that joins them.
 
-Same function, same contract - normalize() should behave identically everywhere.
-Today it does not: orders and billing drifted from the "reject blank loudly" rule
-that shipping follows. These tests make the drift visible.
-
-The root cause is not a bug in any one service - it is that the rule was never
-written down, so three authors each guessed. Fix it in the spec, then apply once.
+invoices does not exist yet, so its rows are red ("not implemented"). Once the agent
+team builds it, the rule that matters is whether it matches the convention - and the
+convention was never written in the spec, only in the sibling code. That gap is what
+the team rewinds on.
 """
 
+import importlib
 import pytest
-from services import orders, billing, shipping
 
-MODULES = [pytest.param(orders, id="orders"),
-           pytest.param(billing, id="billing"),
-           pytest.param(shipping, id="shipping")]
+SERVICES = ["orders", "billing", "shipping", "invoices"]
 
 
-@pytest.mark.parametrize("mod", MODULES)
-def test_valid_input_is_trimmed(mod):
+def load(name):
+    try:
+        return importlib.import_module(f"services.{name}")
+    except ModuleNotFoundError:
+        return None
+
+
+@pytest.mark.parametrize("name", SERVICES)
+def test_valid_input_is_trimmed(name):
+    mod = load(name)
+    if mod is None:
+        pytest.fail(f"{name} service not implemented yet")
     assert mod.normalize("  hello  ") == "hello"
 
 
-@pytest.mark.parametrize("mod", MODULES)
-def test_blank_raises_valueerror(mod):
+@pytest.mark.parametrize("name", SERVICES)
+def test_blank_is_rejected(name):
+    mod = load(name)
+    if mod is None:
+        pytest.fail(f"{name} service not implemented yet")
     with pytest.raises(ValueError):
         mod.normalize("   ")
 
 
-@pytest.mark.parametrize("mod", MODULES)
-def test_none_raises_valueerror(mod):
+@pytest.mark.parametrize("name", SERVICES)
+def test_none_is_rejected(name):
+    mod = load(name)
+    if mod is None:
+        pytest.fail(f"{name} service not implemented yet")
     with pytest.raises(ValueError):
         mod.normalize(None)
