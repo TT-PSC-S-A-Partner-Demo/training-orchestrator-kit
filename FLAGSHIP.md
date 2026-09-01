@@ -21,6 +21,29 @@ report from the `guardrail-audit` skill on your own work.
   ```
 - Nothing else is set up for you. The workflow is yours to build.
 
+## Requirement - what each agent must have (and must not)
+
+Every agent you build must declare **exactly the tools it needs, and no more** - that is
+least privilege, and `guardrail-audit` checks it. Meet this table:
+
+| Agent / role | Skill(s) it drives | Tools it MAY have | Must NOT have |
+|--------------|--------------------|-------------------|---------------|
+| **Orchestrator** (root) | all phase skills; routing + give-up live in its prompt | read repo; spawn subagents | wide shell / write while unattended without approvals |
+| **Analyst / spec** | `spec-change` | read repo; write the spec file only | edit source code; exec |
+| **Implementer** | `implement-to-spec` | read; edit the target files; run the build | network (unless the task needs it); edit outside the named files |
+| **Tester** (subagent) | `test-change` | read; exec (run the tests) | edit production code |
+| **Reviewer** (subagent) | its review brief | read, grep, glob only | write, edit, exec, network |
+
+How you enforce it per tool:
+- **Codex** - `sandbox_mode` per agent `.toml` (`read-only` for the reviewer), and MCP
+  `enabled_tools` / `default_tools_approval_mode = "writes"` for any server.
+- **Claude Code** - `tools:` (and `disallowedTools:`) in each `.claude/agents/*.md`.
+- **Devin** - `allowed-tools:` in each `.devin/agents/*.md`.
+
+The two that matter most: the **reviewer is read-only** (it can never change what it judges),
+and the **tester does not edit production code** (it reports, it does not fix). If an agent
+can do more than its row allows, `guardrail-audit` will flag it RISKY in Milestone D.
+
 ## Milestone A - build the pipeline (20 min)
 
 Get one prompt to drive four stages - **spec -> implement -> test -> review** - on the task.
