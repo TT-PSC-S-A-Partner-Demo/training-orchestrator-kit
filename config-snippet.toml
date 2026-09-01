@@ -1,9 +1,13 @@
 # Add this to your .codex/config.toml (repo-local or ~/.codex/config.toml).
-# It registers the reviewer subagent and caps how many agents can run.
+# Registers the tester + reviewer subagents and caps how many run at once.
 
 [agents]
-max_threads = 6      # max concurrent subagents
+max_threads = 6      # max concurrent subagents (alias of max_concurrent_threads_per_session)
+
+[agents.tester]
+description = "Runs the suite; tags each failure with its root-cause phase."
+config_file = "./agents/tester.toml"
 
 [agents.reviewer]
-description = "Reviews the final diff, read-only."
+description = "Reviews the final diff, read-only; tags findings with the phase that should fix them."
 config_file = "./agents/reviewer.toml"
